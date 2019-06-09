@@ -1,29 +1,42 @@
 /*
  * Vista usuario
  */
+
 var VistaUsuario = function(modelo, controlador, elementos) {
   this.modelo = modelo;
   this.controlador = controlador;
   this.elementos = elementos;
   var contexto = this;
 
-  //suscripcion a eventos del modelo
   this.modelo.preguntaAgregada.suscribir(function() {
     contexto.reconstruirLista();
+  });
+
+  this.modelo.preguntaEditada.suscribir(function() {
+    contexto.reconstruirLista();
+  });
+
+  this.modelo.preguntaEliminada.suscribir(function() {
+    contexto.reconstruirLista();
+  });
+
+  this.modelo.votoAgregado.suscribir(function() {
+    contexto.reconstruirGrafico();
+    contexto.elementos.nombreUsuario.val('');
   });
 };
 
 VistaUsuario.prototype = {
-  //muestra la lista por pantalla y agrega el manejo del boton agregar
+
   inicializar: function() {
     this.reconstruirLista();
     var elementos = this.elementos;
     var contexto = this;
-    
+
     elementos.botonAgregar.click(function() {
-      contexto.agregarVotos(); 
+      contexto.agregarVotos();
     });
-      
+
     this.reconstruirGrafico();
   },
 
@@ -42,15 +55,17 @@ VistaUsuario.prototype = {
     })
   },
 
-
   reconstruirLista: function() {
     var listaPreguntas = this.elementos.listaPreguntas;
     listaPreguntas.html('');
     var contexto = this;
     var preguntas = this.modelo.preguntas;
     preguntas.forEach(function(clave){
-      //completar
-      //agregar a listaPreguntas un elemento div con valor "clave.textoPregunta", texto "clave.textoPregunta", id "clave.id"
+      listaPreguntas.append($('<div>', {
+            value: clave.textoPregunta,
+            text: clave.textoPregunta,
+            id: clave.id,
+          }));
       var respuestas = clave.cantidadPorRespuesta;
       contexto.mostrarRespuestas(listaPreguntas,respuestas, clave);
     })
@@ -74,11 +89,12 @@ VistaUsuario.prototype = {
   agregarVotos: function(){
     var contexto = this;
     $('#preguntas').find('div').each(function(){
-        var nombrePregunta = $(this).attr('value');
-        var id = $(this).attr('id');
+        var nombrePregunta = $(this).attr('value')
+        var id = $(this).attr('id')
+        var pregunta = contexto.modelo.obtenerPregunta(nombrePregunta);
         var respuestaSeleccionada = $('input[name=' + id + ']:checked').val();
         $('input[name=' + id + ']').prop('checked',false);
-        contexto.controlador.agregarVoto(nombrePregunta,respuestaSeleccionada);
+        contexto.controlador.agregarVoto(pregunta,respuestaSeleccionada);
       });
   },
 
