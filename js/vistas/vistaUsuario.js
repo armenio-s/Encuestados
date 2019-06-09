@@ -71,7 +71,6 @@ VistaUsuario.prototype = {
     })
   },
 
-  //muestra respuestas
   mostrarRespuestas:function(listaPreguntas,respuestas, clave){
     respuestas.forEach (function(elemento) {
       listaPreguntas.append($('<input>', {
